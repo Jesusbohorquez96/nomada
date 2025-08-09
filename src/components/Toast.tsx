@@ -18,14 +18,24 @@ export default function Toast({
 
   // Manejar el cierre automático del toast
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setVisible(false);
-      setTimeout(onClose, 300); // Permitir que termine la animación antes de eliminar el componente
-    }, duration);
+    // Solo establecer el temporizador si duration > 0
+    if (duration > 0) {
+      // Temporizador para ocultar el toast
+      const hideTimer = setTimeout(() => {
+        setVisible(false);
+      }, duration);
 
-    return () => {
-      clearTimeout(timer);
-    };
+      // Temporizador para eliminar el toast después de la animación
+      const closeTimer = setTimeout(() => {
+        onClose();
+      }, duration + 300); // 300ms extra para la animación de salida
+
+      // Limpiar ambos temporizadores al desmontar
+      return () => {
+        clearTimeout(hideTimer);
+        clearTimeout(closeTimer);
+      };
+    }
   }, [duration, onClose]);
 
   // Configurar estilos según el tipo de toast
@@ -63,9 +73,9 @@ export default function Toast({
 
   return (
     <div
-      className={`fixed right-0 top-4 z-50 mx-4 flex w-full max-w-xs transform items-center rounded-lg border-l-4 ${bgColor} p-4 shadow-lg transition-all duration-300 ${
+      className={`transform items-center rounded-lg border-l-4 ${bgColor} p-4 shadow-lg transition-all duration-300 ${
         visible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-      }`}
+      } mx-4 flex w-full max-w-xs`}
     >
       <div className="mr-3 flex-shrink-0">{icon}</div>
       <div className={`mr-2 flex-grow ${textColor}`}>{message}</div>
@@ -74,9 +84,10 @@ export default function Toast({
           setVisible(false);
           setTimeout(onClose, 300);
         }}
-        className="flex-shrink-0"
+        className="flex-shrink-0 p-1 hover:bg-opacity-20 hover:bg-gray-700 rounded-full"
+        aria-label="Cerrar notificación"
       >
-        <X size={16} className={textColor} />
+        <X size={18} className={textColor} />
       </button>
     </div>
   );

@@ -47,6 +47,13 @@ export const TableProvider: React.FC<TableProviderProps> = ({ children }) => {
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const { showToast } = useNotification();
 
+  // Referencia para almacenar el timestamp de la última notificación
+  const lastNotificationTime = useState(() => ({
+    welcome: 0,
+    change: 0,
+    extend: 0,
+  }))[0];
+
   // Función para guardar la sesión de mesa en localStorage
   const saveTableSession = useCallback((id: string) => {
     const expiresAt = Date.now() + TABLE_SESSION_DURATION;
@@ -61,38 +68,44 @@ export const TableProvider: React.FC<TableProviderProps> = ({ children }) => {
   // Función para reiniciar el timer de la mesa
   const resetTableTimer = useCallback(() => {
     if (tableId) {
+      const now = Date.now();
       const expiresAt = saveTableSession(tableId);
-      setTimeRemaining(expiresAt - Date.now());
-      showToast(`Timer de mesa #${tableId} extendido por 1.5 horas.`, {
-        type: "success",
-      });
+      setTimeRemaining(expiresAt - now);
     }
-  }, [tableId, saveTableSession, showToast]);
+  }, [tableId, saveTableSession, showToast, lastNotificationTime]);
 
   // Función para cambiar a una nueva mesa
   const changeTable = useCallback(
     (newTableId: string) => {
+      const now = Date.now();
+
       if (newTableId !== tableId) {
         // Si es una mesa diferente, actualizamos
         setTableId(newTableId);
         const expiresAt = saveTableSession(newTableId);
-        setTimeRemaining(expiresAt - Date.now());
-        showToast(`Has cambiado a la mesa #${newTableId}`, {
-          type: "success",
-        });
+        setTimeRemaining(expiresAt - now);
+
+        // Solo mostrar notificación si han pasado al menos 3 segundos desde la última
+        if (now - lastNotificationTime.change > 3000) {
+          showToast(`Has cambiado a la mesa #${newTableId}`, {
+            type: "success",
+            duration: 3000,
+          });
+          lastNotificationTime.change = now;
+        }
         console.log(`Mesa cambiada a: ${newTableId}`);
       } else {
         // Si es la misma mesa, simplemente extendemos el timer
         resetTableTimer();
-        showToast(
-          `Ya estás en la mesa #${tableId}. Se ha extendido el tiempo de la sesión.`,
-          {
-            type: "info",
-          }
-        );
       }
     },
-    [tableId, saveTableSession, showToast, resetTableTimer]
+    [
+      tableId,
+      saveTableSession,
+      showToast,
+      resetTableTimer,
+      lastNotificationTime,
+    ]
   );
 
   useEffect(() => {
@@ -129,15 +142,22 @@ export const TableProvider: React.FC<TableProviderProps> = ({ children }) => {
       try {
         // Decodificamos el ID de mesa que viene en base64
         const decodedTableId = atob(encodedTableId);
+        const now = Date.now();
 
         if (!tableId) {
           // Si no hay mesa, asignamos la nueva
           setTableId(decodedTableId);
           const expiresAt = saveTableSession(decodedTableId);
-          setTimeRemaining(expiresAt - Date.now());
-          showToast(`Bienvenido a la mesa #${decodedTableId}`, {
-            type: "success",
-          });
+          setTimeRemaining(expiresAt - now);
+
+          // Solo mostrar notificación si han pasado al menos 3 segundos desde la última
+          if (now - lastNotificationTime.welcome > 3000) {
+            showToast(`Bienvenido a la mesa #${decodedTableId}`, {
+              type: "success",
+              duration: 3000,
+            });
+            lastNotificationTime.welcome = now;
+          }
           console.log(`Mesa detectada en URL: ${decodedTableId}`);
         } else {
           // Si ya hay una mesa asignada (ya sea la misma u otra), usamos changeTable
@@ -149,7 +169,7 @@ export const TableProvider: React.FC<TableProviderProps> = ({ children }) => {
         console.error("Error al decodificar el ID de mesa:", error);
       }
     }
-  }, [saveTableSession, tableId, changeTable, showToast]);
+  }, [saveTableSession, tableId, changeTable, showToast, lastNotificationTime]);
 
   // Efecto para actualizar el tiempo restante cada segundo y limpiar cuando expire
   useEffect(() => {
@@ -170,22 +190,6 @@ export const TableProvider: React.FC<TableProviderProps> = ({ children }) => {
         const session: TableSession = JSON.parse(storedSession);
         const remaining = session.expiresAt - Date.now();
 
-        // Si quedan 5 minutos o menos, mostramos una notificación
-        if (
-          remaining > 0 &&
-          remaining <= 5 * 60 * 1000 &&
-          remaining % (60 * 1000) < 1000
-        ) {
-          const minutesLeft = Math.ceil(remaining / (60 * 1000));
-
-          showToast(
-            `Tu sesión de mesa expirará en ${minutesLeft} ${
-              minutesLeft === 1 ? "minuto" : "minutos"
-            }. Haz clic en + para extenderla.`,
-            { type: "warning", duration: 5000 }
-          );
-        }
-
         if (remaining <= 0) {
           // La sesión expiró
           clearInterval(interval);
@@ -197,7 +201,7 @@ export const TableProvider: React.FC<TableProviderProps> = ({ children }) => {
           // Notificamos al usuario
           showToast("Tu sesión de mesa ha expirado.", {
             type: "info",
-            duration: 5000,
+            duration: 2500,
           });
         } else {
           setTimeRemaining(remaining);

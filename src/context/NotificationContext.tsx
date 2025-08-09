@@ -20,7 +20,8 @@ interface NotificationContextType {
   showToast: (message: string, options?: ToastOptions) => void;
 }
 
-export const NotificationContext = createContext<NotificationContextType | null>(null);
+export const NotificationContext =
+  createContext<NotificationContextType | null>(null);
 
 export const useNotification = () => {
   const context = useContext(NotificationContext);
@@ -53,8 +54,10 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     }>
   >([]);
 
-  // ID counter for toasts
-  let nextId = 0;
+  // ID counter for toasts - usando useRef para mantener el valor entre renderizados
+  const nextIdRef = useState(() => ({
+    current: 0,
+  }))[0];
 
   const showModal = (message: string, options?: ModalOptions) => {
     setModalState({
@@ -70,15 +73,24 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   };
 
   const showToast = (message: string, options?: ToastOptions) => {
-    const id = nextId++;
-    const newToast = {
-      id,
-      message,
-      type: options?.type || "info",
-      duration: options?.duration || 2500,
-    };
+    const id = nextIdRef.current++;
+    const type = options?.type || "info";
+    const duration = options?.duration || 2500;
 
-    setToasts((prev) => [...prev, newToast]);
+    // Eliminar notificaciones duplicadas (mismo mensaje y tipo)
+    setToasts((prev) => {
+      // Filtrar notificaciones duplicadas
+      const filteredToasts = prev.filter(
+        (toast) => !(toast.message === message && toast.type === type)
+      );
+
+      // Limitar a máximo 3 notificaciones a la vez
+      const newToasts = [...filteredToasts, { id, message, type, duration }];
+      if (newToasts.length > 3) {
+        return newToasts.slice(newToasts.length - 3);
+      }
+      return newToasts;
+    });
   };
 
   const removeToast = (id: number) => {
@@ -106,7 +118,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
       </Modal>
 
       {/* Toast container */}
-      <div className="fixed right-0 top-0 z-50 flex flex-col items-end space-y-4 p-4">
+      <div className="fixed right-0 top-16 z-50 flex flex-col items-end space-y-4 p-4">
         {toasts.map((toast) => (
           <Toast
             key={toast.id}
