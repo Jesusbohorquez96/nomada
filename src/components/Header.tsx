@@ -64,7 +64,7 @@ export default function Header({ currentSection }: HeaderProps) {
                 <ShoppingCart className="h-4 w-4" />
                 <span>CARRITO</span>
                 {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-amber-600 text-stone-900 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                  <span className="absolute -bottom-2 -left-2 bg-amber-600 text-stone-900 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-md">
                     {itemCount}
                   </span>
                 )}
@@ -89,7 +89,7 @@ export default function Header({ currentSection }: HeaderProps) {
             >
               <ShoppingCart className="h-6 w-6" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-600 text-stone-900 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                <span className="absolute -bottom-2 -left-2 bg-amber-600 text-stone-900 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-md">
                   {itemCount}
                 </span>
               )}

@@ -17,6 +17,7 @@ interface TableContextType {
   hasTable: boolean;
   timeRemaining: number | null; // Tiempo restante en milisegundos
   resetTableTimer: () => void; // Función para reiniciar el timer
+  changeTable: (newTableId: string) => void; // Función para cambiar de mesa
 }
 
 const TableContext = createContext<TableContextType>({
@@ -24,6 +25,7 @@ const TableContext = createContext<TableContextType>({
   hasTable: false,
   timeRemaining: null,
   resetTableTimer: () => {},
+  changeTable: () => {},
 });
 
 export const useTable = () => useContext(TableContext);
@@ -67,6 +69,32 @@ export const TableProvider: React.FC<TableProviderProps> = ({ children }) => {
     }
   }, [tableId, saveTableSession, showToast]);
 
+  // Función para cambiar a una nueva mesa
+  const changeTable = useCallback(
+    (newTableId: string) => {
+      if (newTableId !== tableId) {
+        // Si es una mesa diferente, actualizamos
+        setTableId(newTableId);
+        const expiresAt = saveTableSession(newTableId);
+        setTimeRemaining(expiresAt - Date.now());
+        showToast(`Has cambiado a la mesa #${newTableId}`, {
+          type: "success",
+        });
+        console.log(`Mesa cambiada a: ${newTableId}`);
+      } else {
+        // Si es la misma mesa, simplemente extendemos el timer
+        resetTableTimer();
+        showToast(
+          `Ya estás en la mesa #${tableId}. Se ha extendido el tiempo de la sesión.`,
+          {
+            type: "info",
+          }
+        );
+      }
+    },
+    [tableId, saveTableSession, showToast, resetTableTimer]
+  );
+
   useEffect(() => {
     // Primero verificamos si hay una sesión existente en localStorage
     const storedSession = localStorage.getItem(TABLE_STORAGE_KEY);
@@ -92,28 +120,36 @@ export const TableProvider: React.FC<TableProviderProps> = ({ children }) => {
       }
     }
 
-    // Si no hay sesión en localStorage o está expirada, verificamos la URL
-    if (!tableId) {
-      const params = new URLSearchParams(window.location.search);
-      const encodedTableId = params.get("mesa");
+    // Verificamos la URL independientemente de si ya hay una mesa asignada
+    // Esto permite cambiar de mesa si el usuario escanea otro código QR
+    const params = new URLSearchParams(window.location.search);
+    const encodedTableId = params.get("mesa");
 
-      if (encodedTableId) {
-        try {
-          // Decodificamos el ID de mesa que viene en base64
-          const decodedTableId = atob(encodedTableId);
+    if (encodedTableId) {
+      try {
+        // Decodificamos el ID de mesa que viene en base64
+        const decodedTableId = atob(encodedTableId);
 
-          // Guardamos en el state y en localStorage con expiración
+        if (!tableId) {
+          // Si no hay mesa, asignamos la nueva
           setTableId(decodedTableId);
           const expiresAt = saveTableSession(decodedTableId);
           setTimeRemaining(expiresAt - Date.now());
-
+          showToast(`Bienvenido a la mesa #${decodedTableId}`, {
+            type: "success",
+          });
           console.log(`Mesa detectada en URL: ${decodedTableId}`);
-        } catch (error) {
-          console.error("Error al decodificar el ID de mesa:", error);
+        } else {
+          // Si ya hay una mesa asignada (ya sea la misma u otra), usamos changeTable
+          // que tiene la lógica para manejar ambos casos
+          changeTable(decodedTableId);
+          console.log(`Mesa procesada en URL: ${decodedTableId}`);
         }
+      } catch (error) {
+        console.error("Error al decodificar el ID de mesa:", error);
       }
     }
-  }, [saveTableSession, tableId]);
+  }, [saveTableSession, tableId, changeTable, showToast]);
 
   // Efecto para actualizar el tiempo restante cada segundo y limpiar cuando expire
   useEffect(() => {
@@ -181,8 +217,9 @@ export const TableProvider: React.FC<TableProviderProps> = ({ children }) => {
       hasTable: tableId !== null,
       timeRemaining,
       resetTableTimer,
+      changeTable,
     }),
-    [tableId, timeRemaining, resetTableTimer]
+    [tableId, timeRemaining, resetTableTimer, changeTable]
   );
 
   return (
