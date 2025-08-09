@@ -30,7 +30,7 @@ function App() {
             currentSection={currentSection}
             onSectionChange={setCurrentSection}
           />
-          <main>{renderSection()}</main>
+          <main className="pt-6">{renderSection()}</main>
         </div>
       </CartProvider>
     </NotificationProvider>

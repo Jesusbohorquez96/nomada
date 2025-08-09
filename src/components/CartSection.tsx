@@ -163,7 +163,7 @@ export default function CartSection() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-stone-900">
-        <div className="max-w-md mx-auto px-4 py-4">
+        <div className="max-w-md mx-auto px-4 py-4 pt-12">
           <div className="text-center py-12">
             <ShoppingBag className="h-20 w-20 text-stone-600 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-amber-400 mb-2">
@@ -180,7 +180,7 @@ export default function CartSection() {
 
   return (
     <div className="min-h-screen bg-stone-900">
-      <div className="max-w-md mx-auto px-4 py-4">
+      <div className="max-w-md mx-auto px-4 py-4 pt-12">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-amber-400">TU CARRITO</h2>
           <button
