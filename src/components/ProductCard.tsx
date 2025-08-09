@@ -19,19 +19,34 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   // Función para obtener la etiqueta de la opción de manera consistente
   const getOptionLabel = (option: string) => {
-    switch (option) {
-      case "solo":
-        return "Solo Burger";
-      case "conPapas":
-        return "Burger + Papas";
-      case "conPapasAdicionales":
-        return "Burger + Papas Agrandadas";
-      case "jarra":
-        return "Jarra";
-      case "vaso":
-        return "Vaso";
-      default:
-        return option;
+    // Si es un producto de la categoría Sándwiches, usamos etiquetas específicas para panini
+    if (product.category === "Sándwiches") {
+      switch (option) {
+        case "solo":
+          return "Solo Panini";
+        case "conPapas":
+          return "Panini + Papas";
+        case "conPapasAdicionales":
+          return "Panini + Papas Agrandadas";
+        default:
+          return option;
+      }
+    } else {
+      // Para el resto de productos usamos las etiquetas normales
+      switch (option) {
+        case "solo":
+          return "Solo Burger";
+        case "conPapas":
+          return "Burger + Papas";
+        case "conPapasAdicionales":
+          return "Burger + Papas Agrandadas";
+        case "jarra":
+          return "Jarra";
+        case "vaso":
+          return "Vaso";
+        default:
+          return option;
+      }
     }
   };
 
@@ -49,7 +64,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.category}
           </span>
         </div>
-        <p className="text-stone-300 text-sm mb-4">{product.description}</p>
+        <p className="text-stone-300 text-sm mb-4 whitespace-pre-line">
+          {product.description}
+        </p>
 
         {/* Opciones de precio estilo menú */}
         <div className="mb-4 space-y-2">
@@ -71,8 +88,13 @@ export default function ProductCard({ product }: ProductCardProps) {
                       }`}
                     >
                       <div className="flex flex-col items-center">
-                        {option === "solo" && (
-                          <div className="text-xl mb-1">🍔</div>
+                        {option === "solo" &&
+                        product.category === "Sándwiches" ? (
+                          <div className="text-xl mb-1">🥪</div>
+                        ) : (
+                          option === "solo" && (
+                            <div className="text-xl mb-1">🍔</div>
+                          )
                         )}
                         {option === "conPapas" && (
                           <div className="text-xl mb-1">🍟</div>
