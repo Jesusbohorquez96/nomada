@@ -122,7 +122,7 @@ export default function AboutSection() {
             <div className="text-center">
               <Phone className="h-8 w-8 text-amber-600 mx-auto mb-2" />
               <h4 className="font-bold text-amber-400 mb-1">TELÉFONO</h4>
-              <p className="text-stone-300 text-sm">+57 322 245 3939</p>
+              <p className="text-stone-300 text-sm">+57 322 245 0393</p>
             </div>
             <div className="text-center">
               <svg

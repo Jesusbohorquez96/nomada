@@ -2,19 +2,22 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Product } from "../types";
 import { useCart } from "../context/CartContext";
+import { useNotification } from "../context/NotificationContext";
 
 interface ProductCardProps {
-  product: Product;
+  readonly product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { showToast } = useNotification();
   const [selectedOption, setSelectedOption] = useState<
     "solo" | "conPapas" | "conPapasAdicionales" | "jarra" | "vaso"
   >(Object.keys(product.prices)[0] as any);
 
   const handleAddToCart = () => {
     addToCart(product, selectedOption);
+    showToast(`¡${product.name} añadido al carrito!`, { type: "success" });
   };
 
   // Función para obtener la etiqueta de la opción de manera consistente

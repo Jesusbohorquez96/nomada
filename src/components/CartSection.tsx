@@ -10,9 +10,11 @@ import {
   User,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useNotification } from "../context/NotificationContext";
 
 export default function CartSection() {
   const { items, updateQuantity, clearCart, total } = useCart();
+  const { showModal, showToast } = useNotification();
   const [deliveryInfo, setDeliveryInfo] = useState({
     nombre: "",
     direccion: "",
@@ -37,8 +39,9 @@ export default function CartSection() {
       !deliveryInfo.direccion ||
       !deliveryInfo.telefono
     ) {
-      alert(
-        "Por favor completa los campos obligatorios: nombre, dirección y teléfono"
+      showModal(
+        "Por favor completa los campos obligatorios: nombre, dirección y teléfono",
+        { type: "error", title: "Campos incompletos" }
       );
       return;
     }
@@ -71,7 +74,7 @@ export default function CartSection() {
     const encodedMessage = encodeURIComponent(message);
 
     // Número de WhatsApp sin el "+"
-    const whatsappNumber = "3222453939";
+    const whatsappNumber = "3222450393";
 
     // Detectamos si es iOS para usar el formato adecuado
     const isIOS =
@@ -100,6 +103,11 @@ export default function CartSection() {
 
     // Abrimos la URL de WhatsApp
     window.open(whatsappUrl, "_blank");
+
+    // Mostramos un mensaje de éxito y limpiamos el carrito
+    showToast("¡Tu pedido ha sido enviado a WhatsApp!", { type: "success" });
+    // Limpiamos el carrito después de enviar el pedido
+    clearCart();
   };
 
   const getOptionLabel = (option: string) => {
@@ -139,7 +147,13 @@ export default function CartSection() {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-amber-400">TU CARRITO</h2>
           <button
-            onClick={clearCart}
+            onClick={() => {
+              clearCart();
+              showModal("Has vaciado el carrito", {
+                type: "info",
+                title: "Carrito vacío",
+              });
+            }}
             className="text-red-400 hover:text-red-300 flex items-center transition-colors text-sm"
           >
             <Trash2 className="h-4 w-4 mr-1" />
