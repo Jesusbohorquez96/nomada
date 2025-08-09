@@ -14,6 +14,7 @@ import CartSection from "./components/CartSection";
 import AboutSection from "./components/AboutSection";
 import { useScrollRestoration } from "./hooks/useScrollRestoration";
 import { useEffect } from "react";
+import ScrollToTopButton from "./components/ScrollToTopButton";
 
 function App() {
   const location = useLocation();
@@ -63,6 +64,7 @@ function App() {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
+            <ScrollToTopButton />
           </div>
         </CartProvider>
       </TableProvider>
