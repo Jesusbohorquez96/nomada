@@ -34,14 +34,10 @@ export default function CartSection() {
 
   const handleSendWhatsApp = () => {
     // Validamos la información de entrega básica
-    if (
-      !deliveryInfo.nombre ||
-      !deliveryInfo.direccion ||
-      !deliveryInfo.telefono
-    ) {
+    if (!deliveryInfo.nombre || !deliveryInfo.direccion) {
       showModal(
-        "Por favor completa los campos obligatorios: nombre, dirección y teléfono",
-        { type: "error", title: "Campos incompletos" }
+        "Por favor completa los campos obligatorios: nombre completo y dirección con barrio",
+        { type: "error", title: "Campos obligatorios incompletos" }
       );
       return;
     }
@@ -53,7 +49,9 @@ export default function CartSection() {
     message += `*INFORMACIÓN DE ENTREGA:*\n`;
     message += `Nombre: ${deliveryInfo.nombre}\n`;
     message += `Dirección: ${deliveryInfo.direccion}\n`;
-    message += `Teléfono: ${deliveryInfo.telefono}\n`;
+    if (deliveryInfo.telefono) {
+      message += `Teléfono: ${deliveryInfo.telefono}\n`;
+    }
     if (deliveryInfo.observaciones) {
       message += `Observaciones: ${deliveryInfo.observaciones}\n`;
     }
@@ -73,41 +71,80 @@ export default function CartSection() {
     // Codificamos el mensaje para URL - asegurándonos de que sea compatible con iOS
     const encodedMessage = encodeURIComponent(message);
 
-    // Número de WhatsApp sin el "+"
-    const whatsappNumber = "3222450393";
+    // Número de WhatsApp con código de país (Colombia +57)
+    const whatsappNumber = "573222450393";
 
-    // Detectamos si es iOS para usar el formato adecuado
+    // Detectamos si es iOS o móvil para usar el formato adecuado
     const isIOS =
       /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
 
     let whatsappUrl;
 
-    if (isIOS) {
-      // En iOS usar el esquema whatsapp:// que funciona mejor en estos dispositivos
-      whatsappUrl = `whatsapp://send?phone=${whatsappNumber}&text=${encodedMessage}`;
-
-      // Manejamos el caso donde WhatsApp no está instalado en iOS
-      setTimeout(() => {
-        const now = new Date().getTime();
-        // Esperamos 1 segundo para ver si WhatsApp se abrió
-        setTimeout(() => {
-          if (new Date().getTime() - now > 1100) return; // Se abrió WhatsApp
-          // Si no se abrió, redirigimos a la versión web como fallback
-          window.location.href = `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
-        }, 1000);
-      }, 100);
+    if (isMobile) {
+      // En dispositivos móviles usamos enlaces directos a la app
+      if (isIOS) {
+        // iOS: usar el esquema whatsapp://
+        whatsappUrl = `whatsapp://send?phone=${whatsappNumber}&text=${encodedMessage}`;
+      } else {
+        // Android: usar el formato estándar intent://
+        whatsappUrl = `intent://send?phone=${whatsappNumber}&text=${encodedMessage}#Intent;scheme=whatsapp;package=com.whatsapp;end`;
+      }
     } else {
-      // Para Android y otros dispositivos usar el formato estándar wa.me
-      whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+      // En navegadores de escritorio usar web.whatsapp.com
+      whatsappUrl = `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
     }
 
-    // Abrimos la URL de WhatsApp
-    window.open(whatsappUrl, "_blank");
+    try {
+      // Abrimos la URL de WhatsApp
+      const newWindow = window.open(whatsappUrl, "_blank");
 
-    // Mostramos un mensaje de éxito y limpiamos el carrito
-    showToast("¡Tu pedido ha sido enviado a WhatsApp!", { type: "success" });
-    // Limpiamos el carrito después de enviar el pedido
-    clearCart();
+      // Verificamos si la ventana se abrió correctamente
+      if (
+        !newWindow ||
+        newWindow.closed ||
+        typeof newWindow.closed === "undefined"
+      ) {
+        // El navegador bloqueó la ventana emergente
+        throw new Error("Bloqueado por el navegador");
+      }
+
+      // Fallback para dispositivos móviles si el esquema directo falla
+      if (isMobile && !isIOS) {
+        setTimeout(() => {
+          // Si no se abrió WhatsApp, redirigimos a la versión web
+          window.location.href = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+        }, 1500);
+      }
+
+      // Si llegamos aquí, consideramos que el intento fue exitoso
+      showToast("¡Tu pedido ha sido enviado a WhatsApp!", { type: "success" });
+      clearCart();
+    } catch (error) {
+      console.error("Error al abrir WhatsApp:", error);
+
+      // Mostramos mensaje de error al usuario
+      showModal(
+        "Hubo un problema al abrir WhatsApp. Vamos a intentar abrirlo en el navegador web.",
+        { type: "warning", title: "Error al abrir WhatsApp" }
+      );
+
+      // Esperamos un momento y luego usamos el fallback
+      setTimeout(() => {
+        // Fallback final a la versión web universal
+        window.location.href = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+        // Notificamos al usuario y limpiamos el carrito de todas formas
+        showToast("¡Pedido preparado para WhatsApp Web!", { type: "success" });
+        clearCart();
+      }, 1500);
+    }
+
+    // La lógica de apertura de WhatsApp y manejo de errores
+    // se ha implementado completamente en el bloque try/catch anterior
   };
 
   const getOptionLabel = (option: string) => {
@@ -267,7 +304,7 @@ export default function CartSection() {
                   <input
                     type="tel"
                     name="telefono"
-                    placeholder="Número telefónico"
+                    placeholder="Número telefónico (opcional)"
                     value={deliveryInfo.telefono}
                     onChange={handleInputChange}
                     className="w-full bg-stone-700 text-stone-100 rounded px-10 py-2 text-sm border border-stone-600 focus:border-amber-500 focus:outline-none"
