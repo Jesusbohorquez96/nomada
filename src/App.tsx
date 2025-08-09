@@ -12,6 +12,7 @@ import Header from "./components/Header";
 import ProductsSection from "./components/ProductsSection";
 import CartSection from "./components/CartSection";
 import AboutSection from "./components/AboutSection";
+import ReservationSection from "./components/ReservationSection";
 import { useScrollRestoration } from "./hooks/useScrollRestoration";
 import { useEffect } from "react";
 import ScrollToTopButton from "./components/ScrollToTopButton";
@@ -46,6 +47,7 @@ function App() {
     const path = location.pathname;
     if (path === "/cart") return "carrito";
     if (path === "/about") return "nosotros";
+    if (path === "/reservations") return "reservas";
     return "productos"; // default o para ruta '/'
   };
 
@@ -61,6 +63,7 @@ function App() {
                 <Route path="/menu" element={<ProductsSection />} />
                 <Route path="/cart" element={<CartSection />} />
                 <Route path="/about" element={<AboutSection />} />
+                <Route path="/reservations" element={<ReservationSection />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>

@@ -53,6 +53,16 @@ export default function Header({ currentSection }: HeaderProps) {
               MENÚ
             </Link>
             <Link
+              to="/reservations"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                currentSection === "reservas"
+                  ? "text-amber-400 bg-stone-800"
+                  : "text-stone-300 hover:text-amber-400"
+              }`}
+            >
+              RESERVAR
+            </Link>
+            <Link
               to="/cart"
               className={`px-3 py-2 rounded-md text-sm font-medium transition-colors relative ${
                 currentSection === "carrito"
@@ -109,6 +119,16 @@ export default function Header({ currentSection }: HeaderProps) {
             }`}
           >
             MENÚ
+          </Link>
+          <Link
+            to="/reservations"
+            className={`px-3 py-1 rounded text-sm font-medium ${
+              currentSection === "reservas"
+                ? "text-amber-400 bg-stone-700"
+                : "text-stone-300"
+            }`}
+          >
+            RESERVAR
           </Link>
           <Link
             to="/about"

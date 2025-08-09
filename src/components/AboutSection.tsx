@@ -1,4 +1,5 @@
 import { MapPin, Clock, Phone, Users, Award, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function AboutSection() {
   return (
@@ -162,7 +163,7 @@ export default function AboutSection() {
                 title="Ubicación de Nómada Mercado Gastronómico"
               ></iframe>
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center space-x-4">
               <a
                 href="https://www.google.com/maps/dir/?api=1&destination=6.4605591%2C-71.7293674"
                 target="_blank"
@@ -172,6 +173,13 @@ export default function AboutSection() {
                 <MapPin className="h-5 w-5 mr-2" />
                 CÓMO LLEGAR
               </a>
+              <Link
+                to="/reservations"
+                className="bg-stone-700 hover:bg-stone-600 text-amber-400 border border-amber-500 font-bold py-3 px-6 rounded-lg flex items-center transition-colors"
+              >
+                <Clock className="h-5 w-5 mr-2" />
+                RESERVAR MESA
+              </Link>
             </div>
           </div>
         </div>
