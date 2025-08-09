@@ -1,0 +1,30 @@
+# Asegurarse de que todas las rutas se manejen a través de index.html para SPA
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  # Si la URL solicitada no es un archivo existente, carpeta o enlace simbólico
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-l
+  # Redirigir todas las solicitudes a index.html
+  RewriteRule ^(.*)$ index.html [QSA,L]
+</IfModule>
+
+# Establecer encabezados de caché para mejorar el rendimiento
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # Imágenes
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  # JavaScript y CSS
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
+
+# Comprimir archivos para mejorar el rendimiento
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript text/javascript application/json
+</IfModule>

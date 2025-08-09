@@ -20,7 +20,7 @@ interface NotificationContextType {
   showToast: (message: string, options?: ToastOptions) => void;
 }
 
-const NotificationContext = createContext<NotificationContextType | null>(null);
+export const NotificationContext = createContext<NotificationContextType | null>(null);
 
 export const useNotification = () => {
   const context = useContext(NotificationContext);

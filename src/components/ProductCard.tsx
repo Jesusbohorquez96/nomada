@@ -111,7 +111,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         {option === "vaso" && (
                           <div className="text-xl mb-1">🥤</div>
                         )}
-                        <div className="font-bold">{price}K</div>
+                        <div className="font-bold">{price}</div>
                         <div className="text-[10px] uppercase mt-1">
                           {getOptionLabel(option)}
                         </div>
@@ -128,7 +128,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <>
                     <div className="text-2xl mb-2">🥤</div>
                     <div className="font-bold text-xl">
-                      {product.prices.solo}K
+                      {product.prices.solo}
                     </div>
                   </>
                 )}
@@ -136,7 +136,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <>
                     <div className="text-2xl mb-2">🥤</div>
                     <div className="font-bold text-xl">
-                      {product.prices.vaso}K
+                      {product.prices.vaso}
                     </div>
                   </>
                 )}
@@ -144,7 +144,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <>
                     <div className="text-2xl mb-2">🍦</div>
                     <div className="font-bold text-xl">
-                      {product.prices.solo}K
+                      {product.prices.solo}
                     </div>
                   </>
                 )}
@@ -157,7 +157,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex justify-between items-center">
           <div className="text-center">
             <div className="text-2xl font-bold text-amber-400">
-              {product.prices[selectedOption]}K
+              {product.prices[selectedOption]}
             </div>
             <div className="text-xs text-stone-400">
               {getOptionLabel(selectedOption)}

@@ -11,10 +11,12 @@ import {
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useNotification } from "../context/NotificationContext";
+import { useTable } from "../context/TableContext";
 
 export default function CartSection() {
   const { items, updateQuantity, clearCart, total } = useCart();
   const { showModal, showToast } = useNotification();
+  const { tableId, hasTable } = useTable();
   const [deliveryInfo, setDeliveryInfo] = useState({
     nombre: "",
     direccion: "",
@@ -34,24 +36,43 @@ export default function CartSection() {
 
   const handleSendWhatsApp = () => {
     // Validamos la información de entrega básica
-    if (!deliveryInfo.nombre || !deliveryInfo.direccion) {
-      showModal(
-        "Por favor completa los campos obligatorios: nombre completo y dirección con barrio",
-        { type: "error", title: "Campos obligatorios incompletos" }
-      );
+    if (!deliveryInfo.nombre) {
+      showModal("Por favor completa tu nombre", {
+        type: "error",
+        title: "Nombre requerido",
+      });
+      return;
+    }
+
+    // Si no hay mesa asignada, validamos también la dirección
+    if (!hasTable && !deliveryInfo.direccion) {
+      showModal("Por favor completa tu dirección y barrio", {
+        type: "error",
+        title: "Dirección requerida",
+      });
       return;
     }
 
     // Construimos el mensaje para WhatsApp
     let message = `*NUEVO PEDIDO - NÓMADA*\n\n`;
 
+    // Si tenemos una mesa asignada, la incluimos al inicio
+    if (hasTable && tableId) {
+      message += `*MESA: ${tableId}*\n\n`;
+    }
+
     // Información de entrega
     message += `*INFORMACIÓN DE ENTREGA:*\n`;
     message += `Nombre: ${deliveryInfo.nombre}\n`;
-    message += `Dirección: ${deliveryInfo.direccion}\n`;
-    if (deliveryInfo.telefono) {
-      message += `Teléfono: ${deliveryInfo.telefono}\n`;
+
+    // Solo incluimos dirección y teléfono si no es un pedido desde mesa
+    if (!hasTable) {
+      message += `Dirección: ${deliveryInfo.direccion}\n`;
+      if (deliveryInfo.telefono) {
+        message += `Teléfono: ${deliveryInfo.telefono}\n`;
+      }
     }
+
     if (deliveryInfo.observaciones) {
       message += `Observaciones: ${deliveryInfo.observaciones}\n`;
     }
@@ -270,6 +291,36 @@ export default function CartSection() {
 
             {/* Información de entrega */}
             <div className="mb-4">
+              {hasTable && tableId && (
+                <div className="mb-4 p-3 bg-amber-600/20 border border-amber-600 rounded-md">
+                  <div className="flex items-center">
+                    <div className="bg-amber-600 text-white p-1 rounded-md mr-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M3 7h18M3 11h18M3 15h18M3 19h18"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-amber-400 font-semibold">
+                        Mesa #{tableId}
+                      </p>
+                      <p className="text-xs text-stone-400">
+                        El pedido será enviado a esta mesa
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <h3 className="text-amber-400 font-bold mb-3 text-lg">
                 INFORMACIÓN DE ENTREGA
               </h3>
@@ -287,29 +338,34 @@ export default function CartSection() {
                   />
                 </div>
 
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-amber-600" />
-                  <input
-                    type="text"
-                    name="direccion"
-                    placeholder="Dirección y barrio"
-                    value={deliveryInfo.direccion}
-                    onChange={handleInputChange}
-                    className="w-full bg-stone-700 text-stone-100 rounded px-10 py-2 text-sm border border-stone-600 focus:border-amber-500 focus:outline-none"
-                  />
-                </div>
+                {/* Solo mostramos dirección y teléfono si no hay mesa asignada */}
+                {!hasTable && (
+                  <>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-amber-600" />
+                      <input
+                        type="text"
+                        name="direccion"
+                        placeholder="Dirección y barrio"
+                        value={deliveryInfo.direccion}
+                        onChange={handleInputChange}
+                        className="w-full bg-stone-700 text-stone-100 rounded px-10 py-2 text-sm border border-stone-600 focus:border-amber-500 focus:outline-none"
+                      />
+                    </div>
 
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-amber-600" />
-                  <input
-                    type="tel"
-                    name="telefono"
-                    placeholder="Número telefónico (opcional)"
-                    value={deliveryInfo.telefono}
-                    onChange={handleInputChange}
-                    className="w-full bg-stone-700 text-stone-100 rounded px-10 py-2 text-sm border border-stone-600 focus:border-amber-500 focus:outline-none"
-                  />
-                </div>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-amber-600" />
+                      <input
+                        type="tel"
+                        name="telefono"
+                        placeholder="Número telefónico (opcional)"
+                        value={deliveryInfo.telefono}
+                        onChange={handleInputChange}
+                        className="w-full bg-stone-700 text-stone-100 rounded px-10 py-2 text-sm border border-stone-600 focus:border-amber-500 focus:outline-none"
+                      />
+                    </div>
+                  </>
+                )}
 
                 <div className="relative">
                   <MessageCircle className="absolute left-3 top-3 h-4 w-4 text-amber-600" />
