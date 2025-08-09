@@ -106,7 +106,7 @@ export default function AboutSection() {
               <MapPin className="h-8 w-8 text-amber-600 mx-auto mb-2" />
               <h4 className="font-bold text-amber-400 mb-1">DIRECCIÓN</h4>
               <p className="text-stone-300 text-sm">
-                Cl. 13 #13-2 a 13-126 
+                Cl. 13 #13-2 a 13-126
                 <br />
                 Tame, Arauca
               </p>

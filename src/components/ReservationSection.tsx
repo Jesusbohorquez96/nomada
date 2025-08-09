@@ -15,8 +15,8 @@ interface ReservationFormData {
 }
 
 export default function ReservationSection() {
-  const { showNotification } = useNotification();
-  
+  const { showToast } = useNotification();
+
   // Estado inicial del formulario
   const [formData, setFormData] = useState<ReservationFormData>({
     name: "",
@@ -41,13 +41,15 @@ export default function ReservationSection() {
     >
   ) => {
     const { name, value } = e.target;
-    
+
     // Si el tipo de evento cambia, determinamos si mostrar el campo de presupuesto
     if (name === "eventType") {
-      const needsBudget = ["birthday", "anniversary", "corporate"].includes(value);
+      const needsBudget = ["birthday", "anniversary", "corporate"].includes(
+        value
+      );
       setShowBudget(needsBudget);
     }
-    
+
     setFormData({
       ...formData,
       [name]: value,
@@ -85,14 +87,14 @@ export default function ReservationSection() {
       // Aquí normalmente enviarías los datos a tu backend
       // Por ahora simulamos una petición exitosa
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      
+
       // Preparar mensaje para WhatsApp
       const eventTypeText = getEventTypeText(formData.eventType);
       const dateObj = new Date(formData.date);
-      const formattedDate = dateObj.toLocaleDateString('es-CO', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+      const formattedDate = dateObj.toLocaleDateString("es-CO", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       });
 
       // Construir mensaje de WhatsApp
@@ -104,11 +106,11 @@ export default function ReservationSection() {
       whatsappMessage += `*Hora:* ${formData.time}\n`;
       whatsappMessage += `*Personas:* ${formData.guests}\n`;
       whatsappMessage += `*Tipo de evento:* ${eventTypeText}\n`;
-      
+
       if (formData.budget && showBudget) {
         whatsappMessage += `*Presupuesto:* ${formatBudget(formData.budget)}\n`;
       }
-      
+
       if (formData.message) {
         whatsappMessage += `\n*Solicitudes especiales:*\n${formData.message}\n`;
       }
@@ -118,19 +120,19 @@ export default function ReservationSection() {
 
       // Codificar mensaje para URL
       const encodedMessage = encodeURIComponent(whatsappMessage);
-      
+
       // URL de WhatsApp
       const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-      
+
       // Abrir WhatsApp en una nueva ventana
       window.open(whatsappURL, "_blank");
-      
+
       // Mostrar mensaje de éxito
-      showNotification({
-        message: "Tu reserva ha sido recibida. Te contactaremos pronto para confirmarla.",
-        type: "success",
-      });
-      
+      showToast(
+        "Tu reserva ha sido recibida. Te contactaremos pronto para confirmarla.",
+        { type: "success" }
+      );
+
       // Resetear formulario
       setFormData({
         name: "",
@@ -145,10 +147,10 @@ export default function ReservationSection() {
       });
       setShowBudget(false);
     } catch (error) {
-      showNotification({
-        message: "Hubo un problema al procesar tu reserva. Intenta nuevamente.",
-        type: "error",
-      });
+      showToast(
+        "Hubo un problema al procesar tu reserva. Intenta nuevamente.",
+        { type: "error" }
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -162,9 +164,12 @@ export default function ReservationSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-amber-400 mb-3">RESERVACIONES</h2>
+          <h2 className="text-4xl font-bold text-amber-400 mb-3">
+            RESERVACIONES
+          </h2>
           <p className="text-xl text-stone-300 max-w-3xl mx-auto">
-            Reserva tu mesa y déjanos preparar una experiencia gastronómica inolvidable para ti y tus acompañantes.
+            Reserva tu mesa y déjanos preparar una experiencia gastronómica
+            inolvidable para ti y tus acompañantes.
           </p>
         </div>
 
@@ -172,55 +177,74 @@ export default function ReservationSection() {
         <div className="grid md:grid-cols-5 gap-12">
           {/* Left Info Column */}
           <div className="md:col-span-2 bg-stone-800 p-8 rounded-lg border border-stone-700 h-fit">
-            <h3 className="text-2xl font-bold text-amber-400 mb-6">INFORMACIÓN DE RESERVAS</h3>
-            
+            <h3 className="text-2xl font-bold text-amber-400 mb-6">
+              INFORMACIÓN DE RESERVAS
+            </h3>
+
             <div className="mb-8">
-              <h4 className="text-lg font-bold text-amber-400 mb-2">HORARIOS DE ATENCIÓN</h4>
+              <h4 className="text-lg font-bold text-amber-400 mb-2">
+                HORARIOS DE ATENCIÓN
+              </h4>
               <p className="text-stone-300 mb-1">
-                <span className="font-bold">Todos los días:</span> 𝟱:𝟬𝟬𝙥𝙢 𝙖 𝟭𝟬:𝟯𝟬𝙥𝙢
+                <span className="font-bold">Todos los días:</span> 𝟱:𝟬𝟬𝙥𝙢 𝙖
+                𝟭𝟬:𝟯𝟬𝙥𝙢
               </p>
             </div>
 
             <div className="mb-8">
-              <h4 className="text-lg font-bold text-amber-400 mb-2">TIPOS DE EVENTOS</h4>
+              <h4 className="text-lg font-bold text-amber-400 mb-2">
+                TIPOS DE EVENTOS
+              </h4>
               <ul className="text-stone-300 space-y-3">
                 <li className="flex items-start">
                   <span className="inline-block w-3 h-3 bg-amber-500 rounded-full mt-1.5 mr-2"></span>
                   <div>
-                    <span className="font-bold">Cenas Regulares:</span> Reserva tu mesa para disfrutar de nuestra oferta gastronómica.
+                    <span className="font-bold">Cenas Regulares:</span> Reserva
+                    tu mesa para disfrutar de nuestra oferta gastronómica.
                   </div>
                 </li>
                 <li className="flex items-start">
                   <span className="inline-block w-3 h-3 bg-amber-500 rounded-full mt-1.5 mr-2"></span>
                   <div>
-                    <span className="font-bold">Cumpleaños:</span> Celebra tu día especial con un menú personalizado.
+                    <span className="font-bold">Cumpleaños:</span> Celebra tu
+                    día especial con un menú personalizado.
                   </div>
                 </li>
                 <li className="flex items-start">
                   <span className="inline-block w-3 h-3 bg-amber-500 rounded-full mt-1.5 mr-2"></span>
                   <div>
-                    <span className="font-bold">Aniversarios:</span> Crea recuerdos inolvidables en un ambiente romántico.
+                    <span className="font-bold">Aniversarios:</span> Crea
+                    recuerdos inolvidables en un ambiente romántico.
                   </div>
                 </li>
                 <li className="flex items-start">
                   <span className="inline-block w-3 h-3 bg-amber-500 rounded-full mt-1.5 mr-2"></span>
                   <div>
-                    <span className="font-bold">Eventos Corporativos:</span> Impresiona a tus clientes o reúne a tu equipo.
+                    <span className="font-bold">Eventos Corporativos:</span>{" "}
+                    Impresiona a tus clientes o reúne a tu equipo.
                   </div>
                 </li>
               </ul>
             </div>
 
             <div className="mb-8">
-              <h4 className="text-lg font-bold text-amber-400 mb-2">IMPORTANTE</h4>
+              <h4 className="text-lg font-bold text-amber-400 mb-2">
+                IMPORTANTE
+              </h4>
               <ul className="text-stone-300 space-y-2">
                 <li className="flex items-start">
                   <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mt-1.5 mr-2"></span>
-                  <span>Para grupos de más de 8 personas, se recomienda reservar con al menos 48 horas de anticipación.</span>
+                  <span>
+                    Para grupos de más de 8 personas, se recomienda reservar con
+                    al menos 48 horas de anticipación.
+                  </span>
                 </li>
                 <li className="flex items-start">
                   <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mt-1.5 mr-2"></span>
-                  <span>Se requiere un depósito para eventos especiales y grupos grandes.</span>
+                  <span>
+                    Se requiere un depósito para eventos especiales y grupos
+                    grandes.
+                  </span>
                 </li>
                 <li className="flex items-start">
                   <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mt-1.5 mr-2"></span>
@@ -230,25 +254,27 @@ export default function ReservationSection() {
             </div>
 
             <div>
-              <h4 className="text-lg font-bold text-amber-400 mb-2">CONTACTO DIRECTO</h4>
+              <h4 className="text-lg font-bold text-amber-400 mb-2">
+                CONTACTO DIRECTO
+              </h4>
               <p className="text-stone-300">
                 Si prefieres hacer tu reserva directamente:
                 <br />
-                <a 
+                <a
                   href="https://wa.me/573222450393"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center mt-2 text-amber-400 hover:text-amber-300 transition-colors"
                 >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="20" 
-                    height="20" 
-                    viewBox="0 0 24 24" 
-                    fill="currentColor" 
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
                     className="mr-2"
                   >
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                   </svg>
                   <span className="font-bold">+57 322 245 0393</span>
                 </a>
@@ -258,13 +284,18 @@ export default function ReservationSection() {
 
           {/* Right Form Column */}
           <div className="md:col-span-3 bg-stone-800 p-8 rounded-lg border border-stone-700">
-            <h3 className="text-2xl font-bold text-amber-400 mb-6">SOLICITUD DE RESERVA</h3>
-            
+            <h3 className="text-2xl font-bold text-amber-400 mb-6">
+              SOLICITUD DE RESERVA
+            </h3>
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Nombre */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-stone-300 mb-1">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-stone-300 mb-1"
+                  >
                     Nombre completo *
                   </label>
                   <input
@@ -280,7 +311,10 @@ export default function ReservationSection() {
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-stone-300 mb-1">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-stone-300 mb-1"
+                  >
                     Correo electrónico *
                   </label>
                   <input
@@ -296,7 +330,10 @@ export default function ReservationSection() {
 
                 {/* Teléfono */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-stone-300 mb-1">
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-stone-300 mb-1"
+                  >
                     Teléfono de contacto *
                   </label>
                   <input
@@ -312,7 +349,10 @@ export default function ReservationSection() {
 
                 {/* Cantidad de personas */}
                 <div>
-                  <label htmlFor="guests" className="block text-sm font-medium text-stone-300 mb-1">
+                  <label
+                    htmlFor="guests"
+                    className="block text-sm font-medium text-stone-300 mb-1"
+                  >
                     Número de personas *
                   </label>
                   <select
@@ -334,7 +374,10 @@ export default function ReservationSection() {
 
                 {/* Fecha */}
                 <div>
-                  <label htmlFor="date" className="block text-sm font-medium text-stone-300 mb-1">
+                  <label
+                    htmlFor="date"
+                    className="block text-sm font-medium text-stone-300 mb-1"
+                  >
                     Fecha *
                   </label>
                   <input
@@ -351,7 +394,10 @@ export default function ReservationSection() {
 
                 {/* Hora */}
                 <div>
-                  <label htmlFor="time" className="block text-sm font-medium text-stone-300 mb-1">
+                  <label
+                    htmlFor="time"
+                    className="block text-sm font-medium text-stone-300 mb-1"
+                  >
                     Hora *
                   </label>
                   <select
@@ -379,7 +425,10 @@ export default function ReservationSection() {
 
                 {/* Tipo de Evento */}
                 <div className="md:col-span-2">
-                  <label htmlFor="eventType" className="block text-sm font-medium text-stone-300 mb-1">
+                  <label
+                    htmlFor="eventType"
+                    className="block text-sm font-medium text-stone-300 mb-1"
+                  >
                     Tipo de evento *
                   </label>
                   <select
@@ -392,7 +441,9 @@ export default function ReservationSection() {
                   >
                     <option value="general">Cena regular</option>
                     <option value="birthday">Cumpleaños</option>
-                    <option value="anniversary">Aniversario / Cena romántica</option>
+                    <option value="anniversary">
+                      Aniversario / Cena romántica
+                    </option>
                     <option value="corporate">Evento corporativo</option>
                     <option value="other">Otro</option>
                   </select>
@@ -401,7 +452,10 @@ export default function ReservationSection() {
                 {/* Presupuesto (condicional) */}
                 {showBudget && (
                   <div className="md:col-span-2">
-                    <label htmlFor="budget" className="block text-sm font-medium text-stone-300 mb-1">
+                    <label
+                      htmlFor="budget"
+                      className="block text-sm font-medium text-stone-300 mb-1"
+                    >
                       Presupuesto estimado por persona
                     </label>
                     <select
@@ -421,7 +475,10 @@ export default function ReservationSection() {
 
                 {/* Mensaje / Solicitud Especial */}
                 <div className="md:col-span-2">
-                  <label htmlFor="message" className="block text-sm font-medium text-stone-300 mb-1">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium text-stone-300 mb-1"
+                  >
                     Solicitudes especiales o comentarios
                   </label>
                   <textarea
@@ -470,24 +527,25 @@ export default function ReservationSection() {
                     </>
                   ) : (
                     <>
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        width="20" 
-                        height="20" 
-                        viewBox="0 0 24 24" 
-                        fill="currentColor" 
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
                         className="mr-2"
                       >
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                       </svg>
                       ENVIAR SOLICITUD POR WHATSAPP
                     </>
                   )}
                 </button>
               </div>
-              
+
               <div className="text-xs text-stone-400 text-center">
-                * Campos obligatorios. Al enviar el formulario, se abrirá WhatsApp con tu información de reserva.
+                * Campos obligatorios. Al enviar el formulario, se abrirá
+                WhatsApp con tu información de reserva.
               </div>
             </form>
           </div>
