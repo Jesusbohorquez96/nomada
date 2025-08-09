@@ -75,7 +75,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
       id,
       message,
       type: options?.type || "info",
-      duration: options?.duration || 5000,
+      duration: options?.duration || 2500,
     };
 
     setToasts((prev) => [...prev, newToast]);

@@ -11,7 +11,7 @@ interface ToastProps {
 export default function Toast({
   message,
   type = "info",
-  duration = 5000,
+  duration = 2500,
   onClose,
 }: ToastProps) {
   const [visible, setVisible] = useState(true);
