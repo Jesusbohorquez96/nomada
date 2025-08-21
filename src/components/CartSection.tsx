@@ -93,7 +93,7 @@ export default function CartSection() {
     const encodedMessage = encodeURIComponent(message);
 
     // Número de WhatsApp con código de país (Colombia +57)
-    const whatsappNumber = "573222450393";
+    const whatsappNumber = "573113310796";
 
     // Detectamos si es iOS o móvil para usar el formato adecuado
     const isIOS =
